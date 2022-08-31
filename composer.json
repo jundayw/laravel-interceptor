@@ -1,0 +1,30 @@
+{
+    "name": "jundayw/laravel-interceptor",
+    "description": "Sensitive Word Filter.",
+    "keywords": ["laravel", "interceptor", "filter"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "jundayw",
+            "email": "jundayw@126.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jundayw\\LaravelInterceptor\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jundayw\\LaravelInterceptor\\InterceptorServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
