@@ -1,6 +1,14 @@
-# 安装方法
+# laravel-interceptor
 
-您可以通过 `Composer` 软件包管理器安装:
+[![GitHub Tag](https://img.shields.io/github/v/tag/jundayw/laravel-interceptor)](https://github.com/jundayw/laravel-interceptor/tags)
+[![Total Downloads](https://img.shields.io/packagist/dt/jundayw/laravel-interceptor?style=flat-square)](https://packagist.org/packages/jundayw/laravel-interceptor)
+[![Packagist Version](https://img.shields.io/packagist/v/jundayw/laravel-interceptor)](https://packagist.org/packages/jundayw/laravel-interceptor)
+[![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/jundayw/laravel-interceptor)](https://github.com/jundayw/laravel-interceptor)
+[![Packagist License](https://img.shields.io/github/license/jundayw/laravel-interceptor)](https://github.com/jundayw/laravel-interceptor)
+
+## 安装
+
+推荐使用 PHP 包管理工具 [Composer](https://getcomposer.org/) 软件包管理器安装：
 
 ```shell
 composer require jundayw/laravel-interceptor
@@ -31,6 +39,7 @@ php artisan vendor:publish --tag=interceptor-migrations
 ```shell
 php artisan migrate --path=database/migrations/2022_08_31_182223_create_interceptor_table.php
 ```
+
 数据填充：
 
 ```shell
@@ -51,7 +60,8 @@ php artisan vendor:publish --tag=interceptor-migrations
 
 本扩展包默认支持 `Eloquent` 驱动的 `\Jundayw\LaravelInterceptor\Support\LocalFilter::class` 本地过滤器，
 
-可自定义扩展 [百度云](https://ai.baidu.com/ai-doc/ANTIPORN/Vk3h6xaga)、[腾讯云](https://cloud.tencent.com/document/product/1124/51860)、[阿里云](https://help.aliyun.com/document_detail/70439.html) 的文本审核功能。
+可自定义扩展 [百度云](https://ai.baidu.com/ai-doc/ANTIPORN/Vk3h6xaga)、[腾讯云](https://cloud.tencent.com/document/product/1124/51860)、[阿里云](https://help.aliyun.com/document_detail/70439.html)
+的文本审核功能。
 
 ```php
 <?php
@@ -78,10 +88,10 @@ class CloudFilter implements Filter
         // $keywords
         // $replacement
         return collect([
-            'type' => (string) $type,// 验证类型
-            'matches' => (array) $matches,// 内容中匹配到的敏感词集
-            'keywords' => (string) $keywords,// 敏感词
-            'replacement' => (string) $replacement,// 替换词或替换规则
+            'type' => (string)$type,// 验证类型
+            'matches' => (array)$matches,// 内容中匹配到的敏感词集
+            'keywords' => (string)$keywords,// 敏感词
+            'replacement' => (string)$replacement,// 替换词或替换规则
         ]);
     }
 
@@ -99,7 +109,7 @@ public function test(Interceptor $interceptor)
 {
     $content = '本校小额贷款，安全、快捷、方便、无抵押，随机随贷，当天放款，上门服务。';
 
-    $content = $interceptor->filter(content: $content,type: 'message', pass: function ($matches, $content) {
+    $content = $interceptor->filter(content: $content, type: 'message', pass: function ($matches, $content) {
         return $content;
     }, review: function ($matches, $content) {
         // event(new ReViewEvent(...));
@@ -109,7 +119,7 @@ public function test(Interceptor $interceptor)
     }, block: function ($matches, $content) {
         throw new \Exception('含有违规词');
     });
-    
+
     echo $content;
 }
 ```
@@ -123,17 +133,8 @@ public function test()
 {
     $content = '本校小额贷款，安全、快捷、方便、无抵押，随机随贷，当天放款，上门服务。';
 
-    $content = Interceptor::filter(content: $content,type: 'message', pass: function ($matches, $content) {
-        return $content;
-    }, review: function ($matches, $content) {
-        // event(new ReViewEvent(...));
-        return $content;
-    }, replace: function ($matches, $content, $collect) {
-        return str_replace(current($matches), $collect->get('replacement'), $content);
-    }, block: function ($matches, $content) {
-        throw new \Exception('含有违规词');
-    });
-    
+    $content = Interceptor::filter(content: $content, type: 'message');
+
     echo $content;
 }
 ```
