@@ -107,21 +107,26 @@ class Interceptor implements InterceptorContract
     {
         $collection = $this->filter->handle($content, $type);
 
-        if ($collect = $collection->where($type, Filter::BLOCK)->first()) {
-            Event::dispatch(BlockEvent::class, [$collect->get('matches'), $content, $collect]);
-            return is_callable($block) ? $block($collect->get('matches'), $content, $collect) : $content;
+        if (($collect = $collection->where($type, Filter::BLOCK))->count()) {
+            Event::dispatch(BlockEvent::class, [$collect->pluck('matches')->flatten()->toArray(), $content, $collect]);
+            return is_callable($block) ? $block($collect->pluck('matches')->flatten()->toArray(), $content, $collect) : $content;
         }
-        if ($collect = $collection->where($type, Filter::REVIEW)->first()) {
-            Event::dispatch(ReviewEvent::class, [$collect->get('matches'), $content, $collect]);
-            return is_callable($review) ? $review($collect->get('matches'), $content, $collect) : $content;
+        if (($collect = $collection->where($type, Filter::REVIEW))->count()) {
+            Event::dispatch(ReviewEvent::class, [$collect->pluck('matches')->flatten()->toArray(), $content, $collect]);
+            return is_callable($review) ? $review($collect->pluck('matches')->flatten()->toArray(), $content, $collect) : $content;
         }
-        if ($collect = $collection->where($type, Filter::REPLACE)->first()) {
-            Event::dispatch(ReplaceEvent::class, [$collect->get('matches'), $content, $collect]);
-            return is_callable($replace) ? $replace($collect->get('matches'), $content, $collect) : $content;
+        if (($collect = $collection->where($type, Filter::REPLACE))->count()) {
+            Event::dispatch(ReplaceEvent::class, [$collect->pluck('matches')->flatten()->toArray(), $content, $collect]);
+            $matches = $collect->pluck('matches')->flatten()->toArray();
+            $replacement = $collect->pluck('replacement')->flatten()->toArray();
+            if (is_callable($replace)) {
+                return $replace($matches, $replacement, $content, $collect);
+            }
+            return str_replace($matches, $replacement, $content);
         }
-        if ($collect = $collection->where($type, Filter::PASS)->first()) {
-            Event::dispatch(PassEvent::class, [$collect->get('matches'), $content, $collect]);
-            return is_callable($pass) ? $pass($collect->get('matches'), $content, $collect) : $content;
+        if (($collect = $collection->where($type, Filter::PASS))->count()) {
+            Event::dispatch(PassEvent::class, [$collect->pluck('matches')->flatten()->toArray(), $content, $collect]);
+            return is_callable($pass) ? $pass($collect->pluck('matches')->flatten()->toArray(), $content, $collect) : $content;
         }
 
         return $content;
